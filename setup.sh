@@ -32,6 +32,14 @@ echo -ne "Fetching and installing network-manager ... "
 apt-get install -y --no-install-recommends network-manager >/dev/null 2>&1
 echo -ne "done!\n"
 
+echo -ne "Fetching and installing typically wanted packages ... "
+apt-get install -y --no-install-recommends htop screen >/dev/null 2>&1
+echo -ne "done!\n"
+
+echo -ne "Fixing locale issues resulting from en_AU.UTF-8 not being configured ... "
+locale-gen en_AU.UTF-8
+echo -ne "done!\n"
+
 echo -ne "Restore SSH key backups from server ... "
 sudo -u pfeerick mkdir /home/pfeerick/.ssh
 wget -qO- 192.168.0.5/ssh-backup/rock64.tar.gz | tar -zxf - -C /
