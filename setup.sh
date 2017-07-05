@@ -3,6 +3,8 @@
 #halt script on first failure
 set -e
 
+PACKAGES="htop screen"
+
 #password="1YelloDog@" # your chosen password
 #perl -e 'printf("%s\n", crypt($ARGV[0], "password"))' "$password"
 
@@ -36,12 +38,12 @@ echo -ne "Fetching and installing network-manager ... "
 apt-get install -y --no-install-recommends network-manager >/dev/null 2>&1
 echo -ne "done!\n"
 
-echo -ne "Fetching and installing typically wanted packages ... "
-apt-get install -y --no-install-recommends htop screen >/dev/null 2>&1
+echo -ne "Fetching and installing extra packages ($PACKAGES) ... "
+apt-get install -y --no-install-recommends $PACKAGES >/dev/null 2>&1
 echo -ne "done!\n"
 
 echo -ne "Fixing locale issues resulting from en_AU.UTF-8 not being configured ... "
-locale-gen en_AU.UTF-8
+locale-gen en_AU.UTF-8 >/dev/null 2>&1
 echo -ne "done!\n"
 
 echo -ne "Restore SSH key backups from server ... "
