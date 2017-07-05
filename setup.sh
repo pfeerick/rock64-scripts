@@ -45,15 +45,15 @@ locale-gen en_AU.UTF-8
 echo -ne "done!\n"
 
 echo -ne "Restore SSH key backups from server ... "
-sudo -u pfeerick mkdir /home/pfeerick/.ssh
+sudo -u pfeerick mkdir -p /home/pfeerick/.ssh
 wget -qO- 192.168.0.5/ssh-backup/rock64.tar.gz | tar -zxf - -C /
 sudo -u pfeerick wget -qO "/home/pfeerick/.ssh/authorized_keys" 192.168.0.5/ssh-backup/authorized_keys
 echo -ne "done!\n"
 
 echo -ne "Get git repo up and running again ... "
-sudo -u pfeerick git config --global user.email $GIT_EMAIL
-sudo -u pfeerick git config --global user.name $GIT_USERNAME
-sduo -u pfeerick git config --global push.default simple
+su pfeerick -c "git config --global user.email $GIT_EMAIL"
+su pfeerick -c "git config --global user.name $GIT_USERNAME"
+su pfeerick -c "git config --global push.default simple"
 sudo -u pfeerick mkdir -p /home/pfeerick/repos/rock64-scripts
 sudo -u pfeerick git clone git@github.com:pfeerick/rock64-scripts.git /home/pfeerick/repos/rock64-scripts
 echo -ne "done!\n"
