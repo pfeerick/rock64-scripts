@@ -16,6 +16,10 @@ echo -en "Rock64 New Install Provisioning Script\n\n"
 #import git credentials from server and load as $GIT_USERNAME and $GIT_EMAIL
 wget -q http://192.168.0.5/provisioning/git-details && source git-details && rm git-details
 
+echo -ne "Adding group 'pfeerick' ... "
+groupadd pfeerick
+echo -ne "done!\n"
+
 echo -ne "Adding user 'pfeerick' ... "
 useradd -m -p paYhAIkbtv3co -s /bin/bash -g pfeerick -G adm,sudo,video,plugdev,input,ssh pfeerick
 echo -ne "done!\n"
