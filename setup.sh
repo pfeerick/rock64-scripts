@@ -53,3 +53,7 @@ sduo -u pfeerick git config --global push.default simple
 sudo -u pfeerick mkdir -p /home/pfeerick/repos/rock64-scripts
 sudo -u pfeerick git clone git@github.com:pfeerick/rock64-scripts.git /home/pfeerick/repos/rock64-scripts
 echo -ne "done!\n"
+
+echo -ne "Remove 'help text' from login..."
+chmod -x /etc/update-motd.d/10-help-text
+echo -ne "done!\n"
