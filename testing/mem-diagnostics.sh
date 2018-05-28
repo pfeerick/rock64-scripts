@@ -22,11 +22,11 @@ Main() {
 	echo -e "\n### memtester (mask: ${MEM_TEST_MASK}, size: ${MEM_TEST_SIZE}, loops: ${MEM_TEST_LOOPS}):\n" > ${MemtesterLogFile}
 	m=$(date +%s)
 	MEMTESTER_TEST_MASK=${MEM_TEST_MASK} memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
-	echo -e "memtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${LogFile}
+	echo -e "\nmemtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${LogFile}
 		
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
 
-	cat ${MemtesterLogFile} >> ${LogFile}
+	head -40 "${MemtesterLogFile}" >> "${LogFile}"
 
 	uploadDebugInfo "${LogFile}"
 
@@ -53,7 +53,7 @@ uploadDebugInfo() {
 	# we obfuscate IPv4 addresses somehow but not too much, MAC addresses have to remain
 	# in clear since otherwise the log becomes worthless due to randomly generated
 	# addresses here and there that might conflict
-	
+
 	cat "$1" \
 		| sed -E 's/([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3})/XXX.XXX.\3\4/g' \
 		| curl -F 'f:1=<-' ix.io
@@ -64,7 +64,7 @@ finishAnyway() {
 	echo -e "\nUser Ctrl+C detected, memtester output will be truncated...\n" | tee -a ${LogFile}
 
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
-
+	
 	head -40 "${MemtesterLogFile}" >> "${LogFile}"
 
 	uploadDebugInfo "${LogFile}"
