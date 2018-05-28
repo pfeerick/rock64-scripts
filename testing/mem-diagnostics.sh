@@ -23,8 +23,10 @@ Main() {
 	m=$(date +%s)
 	MEMTESTER_TEST_MASK=${MEM_TEST_MASK} memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
 	echo -e "\nmemtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${MemtesterLogFile}
-		
+
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
+
+	col -b < ${MemtesterLogFile} >>  ${LogFile}
 
 	uploadDebugInfo "${LogFile}"
 
@@ -82,8 +84,9 @@ CheckDependencies() {
 	MissingTools=""
 
 	which memtester >/dev/null 2>&1 || MissingTools="${MissingTools} memtester"
-	which curl >/dev/null 2>&1      || MissingTools="${MissingTools} curl"
-	which fping >/dev/null 2>&1     || MissingTools="${MissingTools} fping"
+	which curl      >/dev/null 2>&1 || MissingTools="${MissingTools} curl"
+	which fping     >/dev/null 2>&1 || MissingTools="${MissingTools} fping"
+	which col       >/dev/null 2>&1 || MissingTools="${MissingTools} bsdmainutils"
 
 	if [ "X${MissingTools}" != "X" ]; then
 		echo -e "Some tools are missing, installing: ${MissingTools}" >&2
