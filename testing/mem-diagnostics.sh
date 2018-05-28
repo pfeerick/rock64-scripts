@@ -22,11 +22,9 @@ Main() {
 	echo -e "\n### memtester (mask: ${MEM_TEST_MASK}, size: ${MEM_TEST_SIZE}, loops: ${MEM_TEST_LOOPS}):\n" > ${MemtesterLogFile}
 	m=$(date +%s)
 	MEMTESTER_TEST_MASK=${MEM_TEST_MASK} memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
-	echo -e "\nmemtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${LogFile}
+	echo -e "\nmemtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${MemtesterLogFile}
 		
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
-
-	head -40 "${MemtesterLogFile}" >> "${LogFile}"
 
 	uploadDebugInfo "${LogFile}"
 
@@ -61,7 +59,7 @@ uploadDebugInfo() {
 } #uploadDebugInfo
 
 finishAnyway() {
-	echo -e "\nUser Ctrl+C detected, memtester output will be truncated...\n" | tee -a ${LogFile}
+	echo -e "\nUser Ctrl+C detected, memtester output will be truncated...\n" | tee -a ${MemtesterLogFile}
 
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
 	
