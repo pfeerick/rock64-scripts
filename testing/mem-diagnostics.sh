@@ -6,6 +6,8 @@ MEM_TEST_LOOPS=2
 Main() {
 	s=$(date +%s)
 
+	ParseOptions "$@"
+
 	RequireRoot
 	CheckDependencies
 
@@ -22,37 +24,46 @@ Main() {
 	echo -e "memtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${LogFile}
 		
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
-	fping ix.io 2>/dev/null | grep -q alive || \
-				(echo -e "\nNetwork/firewall problem detected. Not able to upload debug info.\nPlease fix this or upload ${LogFile} manually\n" >&2 ; exit 1)
-	echo -e "Debug information will now be uploaded to \c"
-	# we obfuscate IPv4 addresses somehow but not too much, MAC addresses have to remain
-	# in clear since otherwise the log becomes worthless due to randomly generated
-	# addresses here and there that might conflict
-	cat ${LogFile} \
-		| sed -E 's/([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3})/XXX.XXX.\3\4/g' \
-		| curl -F 'f:1=<-' ix.io
-	echo -e "Please post the URL in the forum where you've been asked for it.\n"
+
+	uploadDebugInfo "${LogFile}"
 
 	echo -e "Tests complete. Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
 } # Main
 
-finishAnyway() {
-	echo -e "\nUser Ctrl+C detected, finishing debug submission...\n" | tee -a ${LogFile}
+ParseOptions() {
+	while getopts 'U:' c ; do
+	case ${c} in 
+		U)
+			uploadDebugInfo "${OPTARG}"
+			exit 0
+			;;
+	esac
+	done
 
-	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
+} # ParseOptions
+
+uploadDebugInfo() {
 	fping ix.io 2>/dev/null | grep -q alive || \
-				(echo -e "\nNetwork/firewall problem detected. Not able to upload debug info.\nPlease fix this or upload ${LogFile} manually\n" >&2 ; exit 1)
+	(echo -e "\nNetwork/firewall problem detected. Not able to upload debug info.\nPlease fix this or upload $1 manually\n" >&2 ; exit 1)
 	echo -e "Debug information will now be uploaded to \c"
 	# we obfuscate IPv4 addresses somehow but not too much, MAC addresses have to remain
 	# in clear since otherwise the log becomes worthless due to randomly generated
 	# addresses here and there that might conflict
-	cat ${LogFile} \
+	cat "$1" \
 		| sed -E 's/([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3})/XXX.XXX.\3\4/g' \
 		| curl -F 'f:1=<-' ix.io
 	echo -e "Please post the URL in the forum where you've been asked for it.\n"
+} #uploadDebugInfo
 
-	echo -e "Tests complete. Total elapsed time $[$(date +%s)-$m] seconds.\n"
+finishAnyway() {
+	echo -e "\nUser Ctrl+C detected, finishing debug generation...\n" | tee -a ${LogFile}
+
+	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
+
+	echo -e "Report has been generated, but due to user intervention will not be uploaded.\n"
+	echo -e "Run this script with \"-U ${LogFile}\" if you wish upload the log.\n"
+	echo -e "Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
 } #finishAnyway
 
