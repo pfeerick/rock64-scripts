@@ -26,7 +26,9 @@ Main() {
 		
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
 
-	uploadDebugInfo "${LogFile}" "${MemtesterLogFile}"
+	cat ${MemtesterLogFile} >> ${LogFile}
+
+	uploadDebugInfo "${LogFile}"
 
 	echo -e "Tests complete. Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
@@ -34,7 +36,7 @@ Main() {
 
 ParseOptions() {
 	while getopts 'U:' c ; do
-	case ${c} in 
+	case ${c} in
 		U)
 			uploadDebugInfo "${OPTARG}"
 			exit 0
@@ -52,7 +54,7 @@ uploadDebugInfo() {
 	# in clear since otherwise the log becomes worthless due to randomly generated
 	# addresses here and there that might conflict
 	
-	cat "$1" "$2" \
+	cat "$1" \
 		| sed -E 's/([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3})/XXX.XXX.\3\4/g' \
 		| curl -F 'f:1=<-' ix.io
 	echo -e "Please post the URL in the forum where you've been asked for it.\n"
@@ -63,9 +65,9 @@ finishAnyway() {
 
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
 
-	head -40 "${MemtesterLogFile}" > "${MemtesterLogFile}"
+	head -40 "${MemtesterLogFile}" >> "${LogFile}"
 
-	uploadDebugInfo "${LogFile}" "${MemtesterLogFile}"
+	uploadDebugInfo "${LogFile}"
 
 	echo -e "Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
