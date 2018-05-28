@@ -12,20 +12,21 @@ Main() {
 	CheckDependencies
 
 	LogFile="$(mktemp /tmp/${0##*/}.XXXXXX)"
+	MemtesterLogFile="$(mktemp /tmp/${0##*/}.XXXXXX)"
 
 	echo -e "### kernel: \n$(uname -a)" >> ${LogFile}
 
 	echo -e "\n### linux-rock64-package version: \n$(apt-cache policy linux-rock64-package | grep "Installed")" >> ${LogFile}
 
 	trap finishAnyway 1 2 3 6
-	echo -e "\n### memtester (mask: ${MEM_TEST_MASK}, size: ${MEM_TEST_SIZE}, loops: ${MEM_TEST_LOOPS}):\n" >> ${LogFile}
+	echo -e "\n### memtester (mask: ${MEM_TEST_MASK}, size: ${MEM_TEST_SIZE}, loops: ${MEM_TEST_LOOPS}):\n" > ${MemtesterLogFile}
 	m=$(date +%s)
-	MEMTESTER_TEST_MASK=${MEM_TEST_MASK} memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${LogFile}
+	MEMTESTER_TEST_MASK=${MEM_TEST_MASK} memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
 	echo -e "memtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${LogFile}
 		
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
 
-	uploadDebugInfo "${LogFile}"
+	uploadDebugInfo "${LogFile}" "${MemtesterLogFile}"
 
 	echo -e "Tests complete. Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
@@ -50,7 +51,7 @@ uploadDebugInfo() {
 	# we obfuscate IPv4 addresses somehow but not too much, MAC addresses have to remain
 	# in clear since otherwise the log becomes worthless due to randomly generated
 	# addresses here and there that might conflict
-	cat "$1" \
+	head -40 "$2"| cat "$1" \
 		| sed -E 's/([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3}\.)([0-9]{1,3})/XXX.XXX.\3\4/g' \
 		| curl -F 'f:1=<-' ix.io
 	echo -e "Please post the URL in the forum where you've been asked for it.\n"
@@ -61,8 +62,8 @@ finishAnyway() {
 
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
 
-	echo -e "Report has been generated, but due to user intervention will not be uploaded.\n"
-	echo -e "Run this script with \"-U ${LogFile}\" if you wish upload the log.\n"
+	uploadDebugInfo "${LogFile}" "${MemtesterLogFile}"
+
 	echo -e "Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
 } #finishAnyway
