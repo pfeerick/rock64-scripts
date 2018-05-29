@@ -4,8 +4,6 @@ MEM_TEST_SIZE=3GB
 MEM_TEST_LOOPS=2
 
 Main() {
-	s=$(date +%s)
-
 	ParseOptions "$@"
 
 	RequireRoot
@@ -20,8 +18,8 @@ Main() {
 
 	trap finishAnyway 1 2 3 6
 	echo -e "\n### memtester (mask: ${MEM_TEST_MASK}, size: ${MEM_TEST_SIZE}, loops: ${MEM_TEST_LOOPS}):\n" > ${MemtesterLogFile}
-	m=$(date +%s)
-	MEMTESTER_TEST_MASK=${MEM_TEST_MASK} memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
+	export MEMTESTER_TEST_MASK=${MEM_TEST_MASK}
+	time -f"Runtime: %U user, %S system, %E elapsed" memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
 	echo -e "\nmemtester took $[$(date +%s)-$m] seconds.\n" | tee -a ${MemtesterLogFile}
 
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
@@ -30,7 +28,6 @@ Main() {
 
 	uploadDebugInfo "${LogFile}"
 
-	echo -e "Tests complete. Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
 } # Main
 
@@ -69,7 +66,6 @@ finishAnyway() {
 
 	uploadDebugInfo "${LogFile}"
 
-	echo -e "Total elapsed time $[$(date +%s)-$m] seconds.\n"
 	exit 0
 } #finishAnyway
 
