@@ -19,7 +19,7 @@ Main() {
 	trap finishAnyway 1 2 3 6
 	echo -e "\n### memtester (mask: ${MEM_TEST_MASK}, size: ${MEM_TEST_SIZE}, loops: ${MEM_TEST_LOOPS}):\n" > ${MemtesterLogFile}
 	export MEMTESTER_TEST_MASK=${MEM_TEST_MASK}
-	time -f"Runtime: %U user, %S system, %E elapsed" memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
+	/usr/bin/time -f"Runtime: %U user, %S system, %E elapsed" memtester ${MEM_TEST_SIZE} ${MEM_TEST_LOOPS} 2>&1 | tee -a ${MemtesterLogFile}
 
 	echo -e "\n### dmesg:\n$(dmesg)" >> ${LogFile}
 
