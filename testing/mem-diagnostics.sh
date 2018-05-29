@@ -82,6 +82,7 @@ CheckDependencies() {
 	which curl      >/dev/null 2>&1 || MissingTools="${MissingTools} curl"
 	which fping     >/dev/null 2>&1 || MissingTools="${MissingTools} fping"
 	which col       >/dev/null 2>&1 || MissingTools="${MissingTools} bsdmainutils"
+	which time       >/dev/null 2>&1 || MissingTools="${MissingTools} time"
 
 	if [ "X${MissingTools}" != "X" ]; then
 		echo -e "Some tools are missing, installing: ${MissingTools}" >&2
